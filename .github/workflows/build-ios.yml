@@ -13,7 +13,7 @@ permissions:
 jobs:
   build-unsigned-ipa:
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - name: Checkout source package
         uses: actions/checkout@v4
@@ -33,8 +33,11 @@ jobs:
 
       - name: Run simulator XCTest
         run: |
-          xcrun simctl list devices available
-          xcodebuild -workspace source/ios-capture/StrayScanner.xcworkspace -scheme StrayScanner -configuration Debug -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 16" -derivedDataPath "$RUNNER_TEMP/TestDerivedData" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO test
+          SIMULATOR_ID="$(xcrun simctl list devices available | sed -n 's/.*iPhone 16 (\([0-9A-F-]*\)).*/\1/p' | head -n 1)"
+          test -n "$SIMULATOR_ID"
+          xcrun simctl boot "$SIMULATOR_ID" || true
+          xcrun simctl bootstatus "$SIMULATOR_ID" -b
+          xcodebuild -workspace source/ios-capture/StrayScanner.xcworkspace -scheme StrayScanner -configuration Debug -sdk iphonesimulator -destination "id=$SIMULATOR_ID" -destination-timeout 60 -derivedDataPath "$RUNNER_TEMP/TestDerivedData" -resultBundlePath "$RUNNER_TEMP/StrayScannerTests.xcresult" -only-testing:StrayScannerTests -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 60 CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO test
 
       - name: Package IPA
         run: |
