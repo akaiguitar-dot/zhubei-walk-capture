@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "ZhubeiWalkCapture-v0.2.0-source.zip"
+      - "ZhubeiWalkCapture-v0.2.1-source.zip"
       - ".github/workflows/build-ios.yml"
 
 permissions:
@@ -24,7 +24,7 @@ jobs:
       - name: Unpack App source
         run: |
           mkdir source
-          unzip -q ZhubeiWalkCapture-v0.2.0-source.zip -d source
+          unzip -q ZhubeiWalkCapture-v0.2.1-source.zip -d source
           test -f source/ios-capture/StrayScanner.xcodeproj/project.pbxproj
 
       - name: Build unsigned iPhone App
