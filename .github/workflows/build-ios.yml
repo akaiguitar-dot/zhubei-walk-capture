@@ -31,6 +31,11 @@ jobs:
         run: |
           xcodebuild -workspace source/ios-capture/StrayScanner.xcworkspace -scheme StrayScanner -configuration Release -sdk iphoneos -destination "generic/platform=iOS" -derivedDataPath "$RUNNER_TEMP/DerivedData" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" DEVELOPMENT_TEAM="" clean build
 
+      - name: Run simulator XCTest
+        run: |
+          xcrun simctl list devices available
+          xcodebuild -workspace source/ios-capture/StrayScanner.xcworkspace -scheme StrayScanner -configuration Debug -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 16" -derivedDataPath "$RUNNER_TEMP/TestDerivedData" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO test
+
       - name: Package IPA
         run: |
           mkdir -p "$RUNNER_TEMP/Payload"
